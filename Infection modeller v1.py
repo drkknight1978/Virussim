@@ -1,3 +1,10 @@
+# TO DO's
+# 1. Create a Technique for adding a border DONE 14/4/20
+# 2. Create a psuedoname function. DONE 14/4/20
+# 3. Implement a population class and the current version is elegant.
+# 4. Implement a world class to create multiple sims
+# 5. Speed Up, Multi-threading, implement through an image and numpy arrage?
+
 import pygame
 from math import sqrt
 import time
@@ -6,12 +13,16 @@ from random import random
 #*****GLOBALS****
 
 #Set up screensize and place a border if it is required
-X_RESOLUTION, Y_RESOLUTION = (500, 1000)
-X_BORDER, Y_BORDER = (0, 0)
-X_MIN, Y_MIN = (0 + X_BORDER , 0 + Y_BORDER)
+LEFT_BORDER = 100
+RIGHT_BORDER = 100
+TOP_BORDER = 100
+BOTTOM_BORDER = 100
+X_RESOLUTION, Y_RESOLUTION = (600, 600)
+X_BORDER_MAX, Y_BORDER_MAX = (X_RESOLUTION - RIGHT_BORDER, Y_RESOLUTION - TOP_BORDER)
+X_BORDER_MIN, Y_BORDER_MIN = (LEFT_BORDER , BOTTOM_BORDER)
 
 #Civilisation aspects
-POPSIZE = 200               # Population size
+POPSIZE = 200                # Population size
 MAXSPEED = 2                # Maximum movement speed of victims
 HP_MAX = 0                  # Health Points the amount of times you pass an infected victim before getting disease
 DECISION_RANGE = 10         # Maximum number of moves before a victim might change direction.
@@ -38,10 +49,13 @@ def listtostr(list_inp):
 
 def psuedoName():
     #generates name for a victim.
-    return ('todo')
+    psName = ''
+    for I in range(5):
+        psName += chr(int(random()*26)+65)
+    return (psName)
 
 class victim:
-    '''This is th victim class.
+    '''This is the victim class.
     a victim is alloted a position in space, a intial direction of travel,
     Health status (H)ealthy, (I)fected and (C)ured, victim size, 
     the maximum distance a victim will go before changeing direction (changedir), time according to the WORLDCLOCK
@@ -71,7 +85,7 @@ class victim:
 
     def draw(self, scrn):
         # Pass the pygame screen object and map a victim to it.
-        pygame.draw.circle(scrn, self.check_state.get(self.health) , (self.posY, self.posX), self.radius)
+        pygame.draw.circle(scrn, self.check_state.get(self.health) , (self.posX, self.posY), self.radius)
 
     def move(self):
         #Movement method.
@@ -95,11 +109,17 @@ class victim:
         self.posY += self.dirY
 
     def collision(self):
-        #Boundary test - inverts the direction if true
-        if self.posY > Y_RESOLUTION or self.posY < Y_MIN:
-            self.dirY *= -1
-        elif self.posX > X_RESOLUTION or self.posX < X_MIN:
-            self.dirX *= -1
+        #Boundary test - wraps around the world
+        if self.posX > X_BORDER_MAX:
+            self.posX = X_BORDER_MIN + (self.posX - X_BORDER_MAX)
+        if self.posX < X_BORDER_MIN:
+            self.posX = X_BORDER_MAX + (self.posX - X_BORDER_MIN)
+            
+        if self.posY > Y_BORDER_MAX:
+            self.posY = Y_BORDER_MIN + (self.posY - Y_BORDER_MAX)
+        if self.posY < Y_BORDER_MIN:
+            self.posY = Y_BORDER_MAX + (self.posY - Y_BORDER_MIN)
+
 
     def infected(self):
         #Checks if the victim is already infected. If so, cycle through the other victimss
@@ -147,16 +167,17 @@ class victim:
 if __name__ == "__main__":
     #Enter the main loop.
     #initialise the world
-    screen = pygame.display.set_mode((Y_RESOLUTION, X_RESOLUTION))
+    screen = pygame.display.set_mode([X_RESOLUTION, Y_RESOLUTION])
     pygame.display.set_caption("Virus World")
 
     #Generate the initial population
     for _ in range(POPSIZE):
-        X = int(random() * X_RESOLUTION - X_BORDER)
-        Y = int(random() * Y_RESOLUTION - Y_BORDER)
+        X = int(random() * (X_RESOLUTION - (LEFT_BORDER + RIGHT_BORDER))) + LEFT_BORDER ####### 
+        Y = int(random() * (Y_RESOLUTION - (TOP_BORDER + BOTTOM_BORDER))) + BOTTOM_BORDER #######
         DY = int(random() * (MAXSPEED + 1 * 2)) - MAXSPEED
         DX = int(random() * (MAXSPEED + 1 * 2)) - MAXSPEED
         victim.population.append(victim(X, Y, DX, DY))
+        print(X)
     #Create one infected victim to drop into the Simulation
     victim.population[0].health = 'I'
 
@@ -183,7 +204,10 @@ if __name__ == "__main__":
         # Tick the clock forward.
         WORLDCLOCK += 1
 
-        record.append(victim.story())
+        info =victim.story()
+
+        print((info[1]/250), (info[2]/250), (info[3]/250))
+
 
         #Saves a file and debugging
         #f.write(listtostr (record))
@@ -193,5 +217,7 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        
+
 
 #f.close()
