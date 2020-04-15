@@ -23,10 +23,10 @@ X_BORDER_MIN, Y_BORDER_MIN = (LEFT_BORDER , BOTTOM_BORDER)
 
 #Civilisation aspects
 POPSIZE = 200                # Population size
-MAXSPEED = 2                # Maximum movement speed of victims
+MAXSPEED = 1                # Maximum movement speed of victims
 HP_MAX = 0                  # Health Points the amount of times you pass an infected victim before getting disease
-DECISION_RANGE = 10         # Maximum number of moves before a victim might change direction.
-VICTIM_RADIUS = 0           # Victims are represented as circles this is thier radius.
+DECISION_RANGE = 1         # Maximum number of moves before a victim might change direction.
+VICTIM_RADIUS = 1           # Victims are represented as circles this is thier radius.
 
 #State parameters - Defines the colours of the various states of the victims.
 HEALTHY = [255, 255, 255]   # Healthy are White 
@@ -35,7 +35,7 @@ CURED = [0, 255, 0]     # Victimes no longer infected/ infectable
 
 #Virus aspects
 INFECTION_RADIUS = 2        # Distance from the surface of the victim another victim can be affetced.
-RECOVERY_TIME = 300         # Amount of ticks before a victim is no longer infectable (dead / immune)
+RECOVERY_TIME = 100         # Amount of ticks before a victim is no longer infectable (dead / immune)
 
 #World aspects
 WORLDCLOCK = 0              # The worlds universal clock (ticks in __main__)
