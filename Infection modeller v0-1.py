@@ -75,7 +75,7 @@ class population:
             DX = int(random() * (max_speed + 1 * 2)) - max_speed
             self.group.append(victim(X, Y, DX, DY, virus, max_speed, decision_range , HP_max ))
     
-    def Itterate(self, mixing_population = population_list):
+    def itterate(self, mixing_population = population_list):
         #itterate through population and check conditions/infections
         #mixing_population is a list of populations which can infect each other
             for v in self.group:
@@ -111,7 +111,7 @@ class victim(population):
     when the victim get infected''' 
     victims = 0
 
-    def __init__(self, posX, posY, dirX, dirY, virus = virus(), max_speed = 1, decision_range = 1, HP_max = 0, health = 'H', HP = 0, radius = 1, infectDate= 0):
+    def __init__(self, posX, posY, dirX, dirY, virus = virus(), max_speed = 1, decision_range = 1, HP_max = 0, health = 'H', HP = 0, radius = 0, infectDate= 0):
         self.virus = virus
         self.posX = posX
         self.posY = posY
@@ -139,13 +139,16 @@ class victim(population):
 
     def draw(self, scrn):
         # Pass the pygame screen object and map a victim to it.
-        message = str(WORLDCLOCK) + ' '
-        for p in population.population_list:
-            figures = p.story()
-            message += str(p.ID) + ' : Uninfected = ' + str(figures[1]) + ' Infected = ' + str(figures[2]) + ' Cured = ' +str(figures[3]) + '|'
-        textsurface = myfont.render(message, False, (255, 255, 255))      
-        screen.blit(textsurface,(0, 0))
-        pygame.draw.circle(scrn, self.check_state.get(self.health) , (self.posX, self.posY), self.radius)
+        try:
+            message = str(WORLDCLOCK) + ' '
+            for p in population.population_list:
+                figures = p.story()
+                message += str(p.ID) + ' : Uninfected = ' + str(figures[1]) + ' Infected = ' + str(figures[2]) + ' Cured = ' +str(figures[3]) + '|'
+            textsurface = myfont.render(message, False, (255, 255, 255))      
+            screen.blit(textsurface,(0, 0))
+            pygame.draw.circle(scrn, self.check_state.get(self.health) , (self.posX, self.posY), self.radius)
+        except:
+            pygame.draw.circle(scrn, self.check_state.get(self.health) , (self.posX, self.posY), self.radius)
 
     def move(self):
         #Movement method.
@@ -220,30 +223,32 @@ if __name__ == "__main__":
     pygame.font.init()
     myfont = pygame.font.SysFont('Comic Sans MS', 10)
 
-    #define a virus 
-    ebola = virus(2, 100)
-    killer = virus(6, 150)
-    
+    grid = []
+    boxes  = 0
+    s = 100
+    for i in range(50,500, s):
+        row = 0
+        for j in range(50,500, s):
+            grid.append([i, X_RESOLUTION - (i+s), j, Y_RESOLUTION - (j+s)])
+            row += 1
+            boxes += 1
 
-    #create a population
-    box1 = [50, 50, 50, 50]
-    box2 = [50, 50, 50, 50]
-    britain = population(ID = 'Britain', bound_box = box1)
-    france = population(ID = 'France', bound_box = box2)
-    britain.generate_population(popsize=100, virus=killer, max_speed=1, decision_range=3)
-    france.generate_population(popsize=100, max_speed=1, decision_range=3)
-
-    #Create one infected victim to drop into the Simulation
-    britain.group[0].health = 'I'
-    france.group[0].health = 'I'
+    models = []
+    for x in range(boxes):
+        v = virus(infection_radius=2, recovery_time = 100)
+        models.append(population(ID = psuedoName(), bound_box=grid[x]))
+        models[x].generate_population(popsize = 100, max_speed = 1, virus = virus(recovery_time=1+x*5))
+        models[x].group[0].health = 'I'
 
     #Initialise the running variables
     record = [] 
     running = True 
     while  running != False:
         #repeated itterate through the populations
-        britain.Itterate()
-        france.Itterate()
+        pops = []
+
+        for m in range(len(models)):
+            models[m].itterate([models[m]])
         
         # Once the world has been updated update the screen.
         pygame.display.flip()
@@ -251,12 +256,9 @@ if __name__ == "__main__":
 
         # Tick the clock forward.
         WORLDCLOCK += 1
+        print (WORLDCLOCK)
 
         #Exit Points
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        
-
-
-#f.close()
