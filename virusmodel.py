@@ -104,7 +104,7 @@ class victim(population):
         self.dirY = dirY
         self.virus = virus
         self.max_speed = max_speed
-        self.changedir = randint(0,decision_range)
+        self.changedir = randint(0, decision_range)
         self.HP_max = HP_max
         self.health = health
         self.HP = HP
